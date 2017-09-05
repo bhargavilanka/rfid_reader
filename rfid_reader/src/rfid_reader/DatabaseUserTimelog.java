@@ -25,10 +25,12 @@ public class DatabaseUserTimelog {
 	// The user's name primary key is the user name rather than 
 	// being an ID that is assigned automatically
 	@PrimaryKey private String username;
-	private ZonedDateTime timeIn; 		// Scanned in timestamp
-	private ZonedDateTime timeOut; 		// Scanned out timestamp
-	private ZonedDateTime totalTimeToday;	// Total time spent in lab today
-	private ZonedDateTime checkins; 
+
+	
+	private ZonedDateTime timeIn; 			// Scanned in timestamp
+	private ZonedDateTime timeOut; 			// Scanned out timestamp
+	private Period		  totalTimeToday;	// Total time spent in lab today (HH:MM:SS)
+	private int			  checkins; 		// Number of checkings today
 	
 	public DatabaseUserTimelog(String name) {
 	    this.username = name;
@@ -38,8 +40,34 @@ public class DatabaseUserTimelog {
 	private DatabaseUserTimelog() {
 	}
 	
-	public String getName() {
-	    return username;
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+
+	public ZonedDateTime getTimeIn() {
+		return timeIn;
+	}
+	public void setTimeIn(ZonedDateTime timeIn) {
+		this.timeIn = timeIn;
+	}
+
+	public ZonedDateTime getTimeOut() {
+		return timeOut;
+	}
+	public void setTimeOut(ZonedDateTime timeOut) {
+		this.timeOut = timeOut;
+	}
+
+	public Period getTotalTimeToday() {
+		return totalTimeToday;
+	}
+
+	public int getCheckins() {
+		return checkins;
 	}
 	
 	

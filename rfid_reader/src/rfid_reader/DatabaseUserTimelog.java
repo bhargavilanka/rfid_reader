@@ -17,7 +17,7 @@ import com.sleepycat.persist.model.Entity;
 import com.sleepycat.persist.model.Persistent;
 import com.sleepycat.persist.model.PrimaryKey;
 import com.sleepycat.persist.model.SecondaryKey;
-
+import java.time.*;
 
 @Entity
 public class DatabaseUserTimelog {
@@ -25,7 +25,10 @@ public class DatabaseUserTimelog {
 	// The user's name primary key is the user name rather than 
 	// being an ID that is assigned automatically
 	@PrimaryKey private String username;
-
+	private ZonedDateTime timeIn; 		// Scanned in timestamp
+	private ZonedDateTime timeOut; 		// Scanned out timestamp
+	private ZonedDateTime totalTimeToday;	// Total time spent in lab today
+	private ZonedDateTime checkins; 
 	
 	public DatabaseUserTimelog(String name) {
 	    this.username = name;

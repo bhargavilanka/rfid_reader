@@ -53,10 +53,93 @@
 
 package rfid_reader;
 
+import java.io.File;
+import java.time.*;
+
+import com.sleepycat.je.DatabaseException;
+import com.sleepycat.je.Environment;
+import com.sleepycat.je.EnvironmentConfig;
+import com.sleepycat.je.Transaction;
+import com.sleepycat.persist.EntityStore;
+import com.sleepycat.persist.PrimaryIndex;
+import com.sleepycat.persist.SecondaryIndex;
+import com.sleepycat.persist.StoreConfig;
+
+
+
+
 public class Database {
 
+	private Environment env;		// Berkley DB environment is a set of files in the DB directory
+	private EntityStore store;		// DB store for managing entity objects
+	private PrimaryIndex<MonthDay, DatabaseDay> dayByDate;
+	private SecondaryIndex<DatabaseUserTimelog, MonthDay, DatabaseDay> userByDay;
+	private PrimaryIndex<String, DatabaseUserTimelog> userByName;
 	
+    public void DBinit() throws DatabaseException {
+    	
+    	
+        EnvironmentConfig envConfig = new EnvironmentConfig();
+    	final File db_dir = new File(Constants.DATABASE_DIR);
+    	
+        db_dir.mkdirs();						// Create dir if it doesn't exist
+        
+        /* Open a transactional Berkeley DB Environment. */
+        envConfig.setAllowCreate(true);
+        envConfig.setTransactional(true);
+        env = new Environment(db_dir, envConfig);
+        
+        
+        /* Open a transactional EntityStore. */
+        StoreConfig storeConfig = new StoreConfig();
+        storeConfig.setAllowCreate(true);
+        storeConfig.setTransactional(true);
+        store = new EntityStore(env, "RFIDStore", storeConfig);
+
+        /* Initialize the index objects. */
+        dayByDate 	= store.getPrimaryIndex(MonthDay.class, DatabaseDay.class);
+        userByDay 	= store.getSecondaryIndex(dayByDate, DatabaseUserTimelog.class, "name" );
+        userByName 	= store.getPrimaryIndex(String.class, DatabaseUserTimelog.class);
+                    
+    } // end DBinit  	
+   
+    public void write(String user) throws DatabaseException {
+    	/*
+         * Begin a transaction that will be used to atomically commit all
+         * operations in this method.  Note that if no transaction were used,
+         * auto-commit would be used for each individual operation.
+         */
+        Transaction txn = env.beginTransaction(null, null);
+        boolean success = false;
+        try { 
+        	MonthDay today = MonthDay.now();
+        	DatabaseUserTimelog user_timelog = new DatabaseUserTimelog(user, ZonedDateTime.now()); 
+        	DatabaseDay dd = new DatabaseDay();
+        	dd.setDay(today);
+        	dd.setUser_timelog(user_timelog);
+        	dayByDate.put(txn, dd); 
+
+        	//userByDay.put(txn, user_timelog);
+        	success = true; 
+        } finally {
+        	/*
+             * The transaction must be committed or aborted before this method
+             * exits to avoid resource leaks.  Success will be false if an
+             * exception occurs, in which case we abort the transaction.
+             */
+            if (success) {
+                txn.commit();
+            } else {
+                txn.abort();
+            }       	
+        }
+    	
+    } // end class writeData
 	
-	
-	
+	public void close() throws DatabaseException {
+		/* Always close the store first, then the environment. */
+        store.close();
+        env.close();
+	}
+    
 } // end class Database

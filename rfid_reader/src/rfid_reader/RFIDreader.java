@@ -146,8 +146,9 @@ public class RFIDreader {
 						System.err.println("Please tell a mentor!");
 					
 					} else {
-						Debug.log("UID: " + bin2hex(response.getData()));
-						UserTag user = UserTags.getUser(bin2hex(response.getData())); 
+						String UID = bin2hex(response.getData());
+						Debug.log("UID: " + UID);
+						UserTag user = UserTags.getUser(UID); 
 						
 						if (user != null) {
 							Debug.log("User is: " + user);		
@@ -157,7 +158,7 @@ public class RFIDreader {
 							System.out.println(user.getUsername() + ". " + user.getUserLoginMsg());	
 							
 						} else {										// Unknown tag
-							System.out.println("Hey!!! You RFID tag is not in the database. Please see a mentor! Thanks.");
+							System.out.println("Hey!!! You RFID tag: " + UID + " is not in the database. Please see a mentor! Thanks.");
 						}
 						
 					}

@@ -74,7 +74,6 @@ public class UserTags {
 		        for(String key: tag_map.keySet()) {
 					System.out.println("key: " + key + " User data: " + tag_map.get(key));
 		        }
-				System.out.println("tag map explict get: " + tag_map.get("B5FCACD2"));
 	        }
     	} catch (Exception e) {
     		System.err.println("ERROR: Cannot read RFID tag datebase: " + Constants.USER_RFIDTAG_MAPPING);
@@ -112,7 +111,7 @@ class UserTag {
 	}
 	
 	public String getUserFirstName() {
-		return username; // PJW: TODO
+		return username; // PJW: TODO - parse to get the first name
 	}
 	public String getUserLoginMsg() {
 		String msg; 

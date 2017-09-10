@@ -19,8 +19,15 @@ import com.sleepycat.persist.model.PrimaryKey;
 import com.sleepycat.persist.model.SecondaryKey;
 import java.time.*;
 
+
+// A Usertime log record can be added to a Day. 
+// It has an in/out timestamp, the number of check-ins, and total time the user
+// has accumulated for a single day
+// 
+
 @Entity
 public class DatabaseUserTimelog {
+
 
 	// The user's name primary key is the user name rather than 
 	// being an ID that is assigned automatically
@@ -29,11 +36,15 @@ public class DatabaseUserTimelog {
 	
 	private ZonedDateTime timeIn; 			// Scanned in timestamp
 	private ZonedDateTime timeOut; 			// Scanned out timestamp
-	private Period		  totalTimeToday;	// Total time spent in lab today (HH:MM:SS)
 	private int			  checkins; 		// Number of checkings today
+	private Period		  totalTimeToday;	// Total time spent in lab today (HH:MM:SS)
 	
 	public DatabaseUserTimelog(String name) {
 	    this.username = name;
+	}
+	public  DatabaseUserTimelog(String username, ZonedDateTime timeIn) {
+		this.username = username;
+		this.timeIn = timeIn;
 	}
 	
 	/** A default constructor is needed by the DPL for deserialization. */
@@ -72,7 +83,20 @@ public class DatabaseUserTimelog {
 	
 	
 	public String toString() {
-	    return "[User name: " + username + ']';
+		StringBuffer buff = new StringBuffer();
+		buff.append("[username: ");
+		buff.append(username);
+		buff.append(" timeIn: ");
+		buff.append(timeIn);
+		buff.append(" timeOut: ");
+		buff.append(timeOut);
+		buff.append(" Check-ins ");
+		buff.append(checkins);
+		buff.append(" Total time today: ");
+		buff.append(totalTimeToday);
+		buff.append("\n]");
+		
+	    return buff.toString();
 	    }
 } // end class DatabaseUserTimelog    
 	

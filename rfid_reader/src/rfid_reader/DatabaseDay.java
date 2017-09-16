@@ -19,6 +19,7 @@ import com.sleepycat.persist.model.PrimaryKey;
 import com.sleepycat.persist.model.SecondaryKey;
 
 import java.time.*;
+import java.util.Date;
 
 
 // A Day is a list of UserTimelog records 
@@ -26,25 +27,28 @@ import java.time.*;
 // can have multiple UserTimelog records. 
 // There is onely ONE UserTimlog record per day
 
-@Entity
+@Persistent
 public class DatabaseDay {
 
 	
 	//@PrimaryKey(sequence="ID") private long id; 	// DB sequence ID
 	// The primary key is the monthday itself vs an ID that is automatically assigned
+	
+	//private MonthDay day; // Each day/date has a list of UserTimelog entries
 	@PrimaryKey
-	private MonthDay day; // Each day/date has a list of UserTimelog entries
+	private Date day; // Each day/date has a list of UserTimelog entries
 
 
-	@SecondaryKey(relate=MANY_TO_ONE)
+	//@SecondaryKey(relate=MANY_TO_ONE)
 	private DatabaseUserTimelog user_timelog; 		// Each day/date has a list of UserTimelog entries
 
-	public MonthDay getDay() {
+	public Date getDay() {
 		return day;
 	}
 
 
-	public void setDay(MonthDay md) {
+	//public void setDay(MonthDay md) {
+	public void setDay(Date md) {
 		day = md;
 	}
 

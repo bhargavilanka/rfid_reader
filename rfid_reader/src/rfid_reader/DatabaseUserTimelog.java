@@ -16,8 +16,10 @@ import com.sleepycat.persist.StoreConfig;
 import com.sleepycat.persist.model.Entity;
 import com.sleepycat.persist.model.Persistent;
 import com.sleepycat.persist.model.PrimaryKey;
-import com.sleepycat.persist.model.SecondaryKey;
+import com.sleepycat.persist.model.*;
+
 import java.time.*;
+import java.util.Date;
 
 
 // A Usertime log record can be added to a Day. 
@@ -31,18 +33,23 @@ public class DatabaseUserTimelog {
 
 	// The user's name primary key is the user name rather than 
 	// being an ID that is assigned automatically
-	@PrimaryKey private String username;
+	@PrimaryKey
+	private String username;
 
 	
-	private ZonedDateTime timeIn; 			// Scanned in timestamp
-	private ZonedDateTime timeOut; 			// Scanned out timestamp
+	//private ZonedDateTime timeIn; 			// Scanned in timestamp
+	//private ZonedDateTime timeOut; 			// Scanned out timestamp
+	private Date timeIn; 						// Scanned in timestamp
+	private Date timeOut; 						// Scanned out timestamp
 	private int			  checkins; 		// Number of checkings today
-	private Period		  totalTimeToday;	// Total time spent in lab today (HH:MM:SS)
+	//private Period	  totalTimeToday;	// Total time spent in lab today (HH:MM:SS)
+	private Long		  totalTimeToday; 		// Total time spent in lab in minutes
 	
 	public DatabaseUserTimelog(String name) {
 	    this.username = name;
 	}
-	public  DatabaseUserTimelog(String username, ZonedDateTime timeIn) {
+	//public  DatabaseUserTimelog(String username, ZonedDateTime timeIn) {
+	public  DatabaseUserTimelog(String username, Date timeIn) {
 		this.username = username;
 		this.timeIn = timeIn;
 	}
@@ -59,21 +66,25 @@ public class DatabaseUserTimelog {
 	}
 
 
-	public ZonedDateTime getTimeIn() {
+	//public ZonedDateTime getTimeIn() {
+	public Date getTimeIn() {
 		return timeIn;
 	}
-	public void setTimeIn(ZonedDateTime timeIn) {
+	//public void setTimeIn(ZonedDateTime timeIn) {
+	public void setTimeIn(Date timeIn) {
 		this.timeIn = timeIn;
 	}
 
-	public ZonedDateTime getTimeOut() {
+	public Date getTimeOut() {
 		return timeOut;
 	}
-	public void setTimeOut(ZonedDateTime timeOut) {
+	//public void setTimeOut(ZonedDateTime timeOut) {
+	public void setTimeOut(Date timeOut) {
 		this.timeOut = timeOut;
 	}
 
-	public Period getTotalTimeToday() {
+	//public Period getTotalTimeToday() {
+	public Long geTotalTimeToday() {
 		return totalTimeToday;
 	}
 

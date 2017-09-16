@@ -54,6 +54,7 @@
 package rfid_reader;
 
 import java.io.File;
+import java.util.Date; // Apparently Berkeley DB cannot persist Java8 MonthDay objects. So use the old date object
 import java.time.*;
 
 import com.sleepycat.je.DatabaseException;
@@ -72,8 +73,11 @@ public class Database {
 
 	private Environment env;		// Berkley DB environment is a set of files in the DB directory
 	private EntityStore store;		// DB store for managing entity objects
-	private PrimaryIndex<MonthDay, DatabaseDay> dayByDate;
-	private SecondaryIndex<DatabaseUserTimelog, MonthDay, DatabaseDay> userByDay;
+	//private PrimaryIndex<MonthDay, DatabaseDay> dayByDate;
+	private PrimaryIndex<Date, DatabaseDay> dayByDate;
+
+	//private SecondaryIndex<DatabaseUserTimelog, MonthDay, DatabaseDay> userByDay;
+	//private SecondaryIndex<DatabaseUserTimelog, Date, DatabaseDay> userByDay;
 	private PrimaryIndex<String, DatabaseUserTimelog> userByName;
 	
     public void DBinit() throws DatabaseException {
@@ -97,8 +101,9 @@ public class Database {
         store = new EntityStore(env, "RFIDStore", storeConfig);
 
         /* Initialize the index objects. */
-        dayByDate 	= store.getPrimaryIndex(MonthDay.class, DatabaseDay.class);
-        userByDay 	= store.getSecondaryIndex(dayByDate, DatabaseUserTimelog.class, "name" );
+        //dayByDate 	= store.getPrimaryIndex(MonthDay.class, DatabaseDay.class);
+        dayByDate 	= store.getPrimaryIndex(Date.class, DatabaseDay.class);
+        //userByDay 	= store.getSecondaryIndex(dayByDate, DatabaseUserTimelog.class, "name" );
         userByName 	= store.getPrimaryIndex(String.class, DatabaseUserTimelog.class);
                     
     } // end DBinit  	
@@ -112,8 +117,10 @@ public class Database {
         Transaction txn = env.beginTransaction(null, null);
         boolean success = false;
         try { 
-        	MonthDay today = MonthDay.now();
-        	DatabaseUserTimelog user_timelog = new DatabaseUserTimelog(user, ZonedDateTime.now()); 
+        	//MonthDay today = MonthDay.now();
+        	Date today = new Date();
+        	//DatabaseUserTimelog user_timelog = new DatabaseUserTimelog(user, ZonedDateTime.now()); 
+        	DatabaseUserTimelog user_timelog = new DatabaseUserTimelog(user, today); 
         	DatabaseDay dd = new DatabaseDay();
         	dd.setDay(today);
         	dd.setUser_timelog(user_timelog);

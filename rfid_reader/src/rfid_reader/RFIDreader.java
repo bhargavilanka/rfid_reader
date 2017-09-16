@@ -115,6 +115,10 @@ public class RFIDreader {
     	System.out.println("Validate that the current time is: " + 
     			formatter.format(current_time)); 
     	
+    	// Initialise our DB
+    	Database db = new Database();
+    	db.DBinit();
+    	
 	    try {
 	        
 		    TerminalFactory factory = TerminalFactory.getDefault();
@@ -156,6 +160,7 @@ public class RFIDreader {
 							// PJW: TODO: Is the user logging in or out? Won't know until the DB back end is done
 							// For now, assume a login and print that message
 							System.out.println(user.getUsername() + ". " + user.getUserLoginMsg());	
+							db.write(user.getUsername());
 							
 						} else {										// Unknown tag
 							System.out.println("Hey!!! You RFID tag: " + UID + " is not in the database. Please see a mentor! Thanks.");

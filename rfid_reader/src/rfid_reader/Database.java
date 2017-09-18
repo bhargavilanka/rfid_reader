@@ -156,11 +156,6 @@ public class Database {
         	today = sd.format(date);			// This is just the year/month/day
         	Debug.log("Today's database day is: " + today.toString());
         				
-        	//DatabaseUserTimelog user_timelog = new DatabaseUserTimelog(user, ZonedDateTime.now()); 
-        	// TODO: Need to look up user to see if he already exists to today. 
-        	// For this basic testing just create him and write to DB
-        	DatabaseUserTimelog user_timelog = new DatabaseUserTimelog(user, date); 
-        	
         	
         	DatabaseDay dd = dayByDate.get(today);		// Is there an existing db record for today?
         	if (dd == null) {

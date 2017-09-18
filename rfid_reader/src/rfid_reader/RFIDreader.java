@@ -195,7 +195,11 @@ public class RFIDreader {
 			} // end while scan for cards on the terminal
 	        System.err.println("Yikes! Shouldn't get here unless card reader was unplugged!");
 		   
-/*	 
+/*	
+  			// Comment out the enture card reader loop above and uncomment this section in order to populate
+  			// the DB with static data. Each time you run the program it's a login or out for these users. 
+  			// TODO: Right now all this data gets added for a single day. Need a smarter simulation to populate
+  			// the DB with data for multiple days... 
 	    	UserTag user = UserTags.getUser("D58BABD2");
 	    	Debug.log("User is: " + user);	
 	    	db.write(user.getUsername());

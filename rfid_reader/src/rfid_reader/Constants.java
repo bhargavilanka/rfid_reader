@@ -10,5 +10,11 @@ public interface Constants {
 	
 	// Other constants here
 	public static final String dateTimeFormatPattern = "yyyy/MM/dd HH:mm:ss z";
-	
+
+	public enum LoginType {
+		LOGIN, 
+		LOGOUT,
+		INVALID_TIME_SPAN		// Login/out pairs cannot span days...
+	}
 }
+

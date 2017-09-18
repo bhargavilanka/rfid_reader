@@ -121,7 +121,8 @@ public class RFIDreader {
     	
 	    try {
 	        
-		    TerminalFactory factory = TerminalFactory.getDefault();
+ 
+	    	TerminalFactory factory = TerminalFactory.getDefault();
 		    CardTerminals terminals = factory.terminals();
 		    if (terminals.list().isEmpty()) { 
 	            System.err.println("No readers found. Connect a reader and try again."); 
@@ -138,7 +139,7 @@ public class RFIDreader {
 	        	
 	        	card.beginExclusive();							// Only our thread should process this card
 	        	try {
-	
+					Constants.LoginType login_type; 
 					channel = card.getBasicChannel();
 									
 					ResponseAPDU response = channel.transmit(command);	// Get Data command returns the card UID
@@ -159,11 +160,29 @@ public class RFIDreader {
 
 							// PJW: TODO: Is the user logging in or out? Won't know until the DB back end is done
 							// For now, assume a login and print that message
-							System.out.println(user.getUsername() + ". " + user.getUserLoginMsg());	
-							db.write(user.getUsername());
+														login_type = db.write(user.getUsername());
+							
+							switch (login_type) {
+							case LOGIN:
+								System.out.println(user.getUsername() + ". " + user.getUserLoginMsg());	
+								break;
+
+							case LOGOUT:
+								System.out.println(user.getUsername() + ". " + user.getUserLogoutMsg());	
+								break;
+							
+							case INVALID_TIME_SPAN:
+								System.err.println("ERROR: login/outs cannot span multiple days. Login again. ");
+								break;
+							
+							default:
+								System.err.println("ERROR: unknown login type. Please report this to a mentor.");
+								break;	
+							}
+							
 							
 						} else {										// Unknown tag
-							System.out.println("Hey!!! You RFID tag: " + UID + " is not in the database. Please see a mentor! Thanks.");
+							System.out.println("Hey!!! Your RFID tag: " + UID + " is not in the database. Please see a mentor! Thanks.");
 						}
 						
 					}
@@ -172,10 +191,22 @@ public class RFIDreader {
 	        		card.disconnect(false);						// Done with this card channel
 	        		card = null; 
 	        	}
-			}
-	        System.err.println("Yikes! Shouldn't get here!");
+			
+			} // end while scan for cards on the terminal
+	        System.err.println("Yikes! Shouldn't get here unless card reader was unplugged!");
 		   
-	 
+/*	 
+	    	UserTag user = UserTags.getUser("D58BABD2");
+	    	Debug.log("User is: " + user);	
+	    	db.write(user.getUsername());
+	    	user = UserTags.getUser("B5FCACD2");
+	    	Debug.log("User is: " + user);	
+	    	db.write(user.getUsername());
+	    	user = UserTags.getUser("05FCACD2");
+	    	Debug.log("User is: " + user);	
+	    	db.write(user.getUsername());
+	    	db.reportFromDB();
+	*/    	
 		} catch(Exception e) {
 			System.err.println("Unknown error reading RFID: " + e.toString());
 			e.printStackTrace(System.err);

@@ -48,19 +48,42 @@
  *
  *		There is an invaluable Berkely DB tutorial here: 
  *			http://www.oracle.com/technetwork/testcontent/o27berkeleydb-100623.html
+ * 
+ *  	There are command line tools to load and dump the DB
+ *  	See: http://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/util/DbDump.html
+ *  	for an example:
+ *   		java { com.sleepycat.je.util.DbDump |
+ *       		-jar je-<version>.jar DbDump }
+ *  			-h <dir>           # environment home directory
+ * 				[-f <fileName>]     # output file, for non -rR dumps
+ * 				[-l]                # list databases in the environment
+ * 				[-p]                # output printable characters
+ * 				[-r]                # salvage mode
+ * 				[-R]                # aggressive salvage mode
+ * 				[-d] <directory>    # directory for *.dump files (salvage mode)
+ * 				[-s <databaseName>] # database to dump
+ * 				[-v]                # verbose in salvage mode
+ * 				[-V]                # print JE version number	 * 
+ * 
+ * 		Example DB dump command:
+ * 		   java -jar ..\..\lib\je-7.4.5.jar DbDump -h . -s persist#RFIDStore#rfid_reader.DatabaseDay -o
  */
 
 
 package rfid_reader;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date; // Apparently Berkeley DB cannot persist Java8 MonthDay objects. So use the old date object
+import java.text.SimpleDateFormat;
 import java.time.*;
 
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
 import com.sleepycat.je.Transaction;
+import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.SecondaryIndex;
@@ -74,11 +97,11 @@ public class Database {
 	private Environment env;		// Berkley DB environment is a set of files in the DB directory
 	private EntityStore store;		// DB store for managing entity objects
 	//private PrimaryIndex<MonthDay, DatabaseDay> dayByDate;
-	private PrimaryIndex<Date, DatabaseDay> dayByDate;
-
+	private PrimaryIndex<String, DatabaseDay> dayByDate;
+	
 	//private SecondaryIndex<DatabaseUserTimelog, MonthDay, DatabaseDay> userByDay;
 	//private SecondaryIndex<DatabaseUserTimelog, Date, DatabaseDay> userByDay;
-	private PrimaryIndex<String, DatabaseUserTimelog> userByName;
+	//private PrimaryIndex<String, DatabaseUserTimelog> userByName;
 	
     public void DBinit() throws DatabaseException {
     	
@@ -102,13 +125,16 @@ public class Database {
 
         /* Initialize the index objects. */
         //dayByDate 	= store.getPrimaryIndex(MonthDay.class, DatabaseDay.class);
-        dayByDate 	= store.getPrimaryIndex(Date.class, DatabaseDay.class);
+        //dayByDate 	= store.getPrimaryIndex(Date.class, Date.class);
+        dayByDate 	= store.getPrimaryIndex(String.class, DatabaseDay.class);
         //userByDay 	= store.getSecondaryIndex(dayByDate, DatabaseUserTimelog.class, "name" );
-        userByName 	= store.getPrimaryIndex(String.class, DatabaseUserTimelog.class);
+        //userByName 	= store.getPrimaryIndex(String.class, DatabaseUserTimelog.class);
                     
     } // end DBinit  	
    
-    public void write(String user) throws DatabaseException {
+    public Constants.LoginType write(String user) throws DatabaseException {
+
+    	
     	/*
          * Begin a transaction that will be used to atomically commit all
          * operations in this method.  Note that if no transaction were used,
@@ -116,14 +142,39 @@ public class Database {
          */
         Transaction txn = env.beginTransaction(null, null);
         boolean success = false;
+        Constants.LoginType login_type;
+        
         try { 
+
+        	String today = null; 
+        	
+
         	//MonthDay today = MonthDay.now();
-        	Date today = new Date();
+        	Date date = new Date();					// Timestamp for right now including hh:mm:ss
+        	
+        	SimpleDateFormat sd = new SimpleDateFormat("yyyy/MM/dd");
+        	today = sd.format(date);			// This is just the year/month/day
+        	Debug.log("Today's database day is: " + today.toString());
+        				
         	//DatabaseUserTimelog user_timelog = new DatabaseUserTimelog(user, ZonedDateTime.now()); 
-        	DatabaseUserTimelog user_timelog = new DatabaseUserTimelog(user, today); 
-        	DatabaseDay dd = new DatabaseDay();
-        	dd.setDay(today);
-        	dd.setUser_timelog(user_timelog);
+        	// TODO: Need to look up user to see if he already exists to today. 
+        	// For this basic testing just create him and write to DB
+        	DatabaseUserTimelog user_timelog = new DatabaseUserTimelog(user, date); 
+        	
+        	
+        	DatabaseDay dd = dayByDate.get(today);		// Is there an existing db record for today?
+        	if (dd == null) {
+        		dd = new DatabaseDay(today);
+        		Debug.log("New day for DB");
+        		
+        	} else {
+        		Debug.log("Existing day in DB");
+        	}
+        	        	
+        	login_type = dd.setUser_timelog(user, date);
+
+        	
+        	//dayByDate.put(txn, dd); 
         	dayByDate.put(txn, dd); 
 
         	//userByDay.put(txn, user_timelog);
@@ -141,9 +192,44 @@ public class Database {
             }       	
         }
     	
-    } // end class writeData
-	
-	public void close() throws DatabaseException {
+        return login_type; 
+        
+    } // end writeData
+
+    
+    /**
+     * 
+     * 
+     * @throws DatabaseException
+     */
+    public void queryDB() throws DatabaseException {
+    
+    } // end queryDB
+
+    /**
+     * Read the DB to create reports (or emit CSV files for use with excel)
+     * 
+     * @throws DatabaseException
+     */	
+    public void reportFromDB() throws DatabaseException {
+        
+    	EntityCursor<DatabaseDay> dds = dayByDate.entities();
+    	
+    	try {
+	    	for (DatabaseDay dd : dds) {
+	    		System.out.println("DB dump: ");
+	    		System.out.println(dd);
+	    	}
+    	} finally {
+    		dds.close();
+    	}
+    	
+    	
+    } // end reportFromDB
+
+    
+    
+    public void close() throws DatabaseException {
 		/* Always close the store first, then the environment. */
         store.close();
         env.close();

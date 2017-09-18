@@ -61,7 +61,7 @@ public class UserTags {
 	        // The first line DOES have the header row text so we need to skip by it. The constructor
 	        // for CSVReaderBuild conveniently does that. 
 	        // Read in the data and place in a Map for fast tag lookups. 
-	    	// pjw: We dont' expect dup's in the source CVS file - add hardening as we add to the map
+	    	// pjw: TODO: We dont' expect dup's in the source CVS file - add hardening as we add to the map
 	        
 	        while ((line = reader.readNext()) != null) {
 	            Debug.log("Tag: [" + line[0] + "]\tName: [" + line[1] + "]\tLogin: [" + line[2] + "]\tLogout: [" + line[3] + "]");

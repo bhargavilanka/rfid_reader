@@ -19,7 +19,11 @@ import com.sleepycat.persist.model.PrimaryKey;
 import com.sleepycat.persist.model.SecondaryKey;
 
 import java.time.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 // A Day is a list of UserTimelog records 
@@ -27,43 +31,79 @@ import java.util.Date;
 // can have multiple UserTimelog records. 
 // There is onely ONE UserTimlog record per day
 
-@Persistent
+@Entity
 public class DatabaseDay {
 
 	
 	//@PrimaryKey(sequence="ID") private long id; 	// DB sequence ID
-	// The primary key is the monthday itself vs an ID that is automatically assigned
 	
-	//private MonthDay day; // Each day/date has a list of UserTimelog entries
+	// Each Day has a record for the users that scanned in or out that day
+	//private MonthDay day; 
+	// The primary key is the date itself vs an ID that is automatically assigned
+	// Formay is always "yyyy/mm/dd"
 	@PrimaryKey
-	private Date day; // Each day/date has a list of UserTimelog entries
+	private String day; // Each day/date has a list of UserTimelog entries
 
 
 	//@SecondaryKey(relate=MANY_TO_ONE)
-	private DatabaseUserTimelog user_timelog; 		// Each day/date has a list of UserTimelog entries
+	//private List<DatabaseUserTimelog> user_timelog_list =
+	//			new ArrayList<DatabaseUserTimelog>(); 		// Each day/date has a list of UserTimelog entries
+	private Map<String, DatabaseUserTimelog> user_timelog_map = new HashMap<String, DatabaseUserTimelog>();
+	
+	/** A default constructor is needed by the DPL for deserialization. */
+	private DatabaseDay() {
+		
+	}
+	
+	public DatabaseDay(String md) {
+		day = md;
+	}
 
-	public Date getDay() {
+	
+	public String getDay() {
 		return day;
 	}
 
 
 	//public void setDay(MonthDay md) {
-	public void setDay(Date md) {
+	public void setDay(String md) {
 		day = md;
 	}
 
-
+/*
 	public DatabaseUserTimelog getUser_timelog() {
 		return user_timelog;
 	}
+*/
 
+	public Constants.LoginType setUser_timelog(String user, Date date) {
+		DatabaseUserTimelog user_timelog = null; 
+		Constants.LoginType type; 
+		// See if there is a record for this user today
+		if (user_timelog_map.containsKey(user)) {
+			Debug.log("User already has a timelog entry for today (so has scanned in): " + user);
+			user_timelog = user_timelog_map.get(user);
+			type = user_timelog.update(date); // If user already existed, check for scan ir or out and update accordingly
 
-	public void setUser_timelog(DatabaseUserTimelog user_timelog) {
-		this.user_timelog = user_timelog;
-	}
+			if (type == Constants.LoginType.INVALID_TIME_SPAN) {
+				return type; //Return without updating the DB
+			}
+		
+		} else {
+			user_timelog = new DatabaseUserTimelog(user, date);
+			type = Constants.LoginType.LOGIN;
+		}
+		
+
+		this.user_timelog_map.put(user, user_timelog);
+		return type;
+		
+				
+		
+	} // end setUser_timelog
 
 	public String toString() {
-		return day.toString() + " " + user_timelog.toString(); 
+		return day + " " + user_timelog_map.toString(); 
 	}
 		
 }

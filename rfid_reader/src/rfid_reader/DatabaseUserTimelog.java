@@ -89,7 +89,7 @@ public class DatabaseUserTimelog {
     	String timeIn_day  = sd.format(timeIn);					// This is just the year/month/day
     	String current_day = sd.format(date);
     	if (!timeIn_day.equals(current_day)) {
-    		timeIn = null; 								// Clear scan in time to prep for a new scan in...
+    		timeIn = null; 								// Clear scan-in time to prep for a new scan in...
     		return Constants.LoginType.INVALID_TIME_SPAN;
     	
     	}
@@ -97,6 +97,8 @@ public class DatabaseUserTimelog {
 		// Determine delta time and update totalTimeToday field
 		Debug.log("timeIn: " + timeIn.toString() + " current time: " + date.toString());
 		long diff = date.getTime() - timeIn.getTime(); 	// Get delta time in milliseconds
+		// TODO: Make sure this is not negative!! e.g. clock issue
+		
 		long diffMinutes = diff / (60 * 1000) % 60; 
 		Debug.log("diff minutes: " + diffMinutes);
 		totalTimeToday += diffMinutes; 
@@ -133,7 +135,7 @@ public class DatabaseUserTimelog {
 	}
 
 	//public Period getTotalTimeToday() {
-	public Long geTotalTimeToday() {
+	public Long getTotalTimeToday() {
 		return totalTimeToday;
 	}
 

@@ -102,10 +102,18 @@ public class RFIDreader {
     				tagInventory(); 											// Inventory a set of tags to stdout
     				System.exit(0);
     			}
-    			if (argument.equals("--date")) {
+    			if (argument.startsWith("--date")) {							// --date="yyyy/MM/dd hh:mm"
+    				if (argument.contains("=")) {
+        				String s[] = argument.split("=");
+        				if (s.length > 1 && !s[1].isEmpty()) {
+        					Debug.setDate(s[1]);					
+        				}
+    				} else {
+    					Usage();
+    				}
     				
     			}
-    		}
+    		} // end for each argument
     	}
     	
     	// Initialize tag-to-user database
@@ -227,7 +235,13 @@ public class RFIDreader {
 	 } // end main
 
     
-    /**
+    private static void Usage() {
+		System.out.println("Usage: rfid_reader [-i | --inventory] [-d | --debug] [--date='yyy/mm/dd hh:mm:ss [AM|PM]' ]" );
+		System.exit(0);
+	}
+
+
+	/**
      * PJW: Make this the "inventory" process OR use the CLI opensc tool    
      */
     public static void tagInventory() {

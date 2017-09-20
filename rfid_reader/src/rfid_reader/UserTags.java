@@ -127,7 +127,7 @@ class UserTag {
 		if (logoutMsg.isEmpty()) {
 			msg = "Goodbye!";
 		} else {
-			msg = loginMsg; 
+			msg = logoutMsg; 
 		}
 		return msg;
 	}

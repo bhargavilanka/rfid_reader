@@ -5,6 +5,7 @@ package rfid_reader;
  */
 public class Debug {
 	static Boolean debug_enabled = false;
+	static String date = "";
 	/**
 	 * Check to see if debug logging is enabled
 	 * @return

@@ -95,11 +95,15 @@ public class RFIDreader {
     	// KISS argument processing for now
     	if (args.length != 0) {
     		for (String argument: args) {
-    			if (argument.equals("-d") || argument.equals("--debug") )
+    			if (argument.equals("-d") || argument.equals("--debug") ) {
     			    Debug.enable(true);
+    			}
     			if (argument.equals("-i") || argument.equals("--inventory") ) {
     				tagInventory(); 											// Inventory a set of tags to stdout
     				System.exit(0);
+    			}
+    			if (argument.equals("--date")) {
+    				
     			}
     		}
     	}
@@ -134,7 +138,8 @@ public class RFIDreader {
 	        }
 	
 		    System.out.println("Place you card/tag/etc. on the reader to start"); 
-			
+
+		    
 	        while (  (card = waitForCard(terminals)) != null ) {
 	        	
 	        	card.beginExclusive();							// Only our thread should process this card
@@ -160,7 +165,7 @@ public class RFIDreader {
 
 							// PJW: TODO: Is the user logging in or out? Won't know until the DB back end is done
 							// For now, assume a login and print that message
-														login_type = db.write(user.getUsername());
+							login_type = db.write(user.getUsername());
 							
 							switch (login_type) {
 							case LOGIN:
@@ -194,8 +199,8 @@ public class RFIDreader {
 			
 			} // end while scan for cards on the terminal
 	        System.err.println("Yikes! Shouldn't get here unless card reader was unplugged!");
-		   
-/*	
+
+/*
   			// Comment out the enture card reader loop above and uncomment this section in order to populate
   			// the DB with static data. Each time you run the program it's a login or out for these users. 
   			// TODO: Right now all this data gets added for a single day. Need a smarter simulation to populate
@@ -210,7 +215,8 @@ public class RFIDreader {
 	    	Debug.log("User is: " + user);	
 	    	db.write(user.getUsername());
 	    	db.reportFromDB();
-	*/    	
+*/
+	    	
 		} catch(Exception e) {
 			System.err.println("Unknown error reading RFID: " + e.toString());
 			e.printStackTrace(System.err);
@@ -283,14 +289,14 @@ public class RFIDreader {
 	 * @throws CardException
 	 */
     private static Card waitForCard(CardTerminals terminals) 
-            throws CardException { 
+      throws CardException { 
         while (true) { 
         	terminals.waitForChange(0);		// Block forever waiting for state change - no timeout
         	for (CardTerminal ct : terminals.list(CardTerminals.State.CARD_INSERTION)) { 
                 return ct.connect("*"); 		// Connect via any available protocol (e.g. half or full duplex)
             } 
            
-        } 
+      } 
     } // end waitForCard
 	
 	

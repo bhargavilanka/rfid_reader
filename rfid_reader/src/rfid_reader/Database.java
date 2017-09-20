@@ -150,6 +150,12 @@ public class Database {
         	
 
         	//MonthDay today = MonthDay.now();
+        	// TODO: Add support for using an explicit date from the command when debug is enabled
+        	// in order to simulate specific dates/force specfic code paths
+        	// Specifically, at a getDate() method this class and 
+        	// and it return thea Date() when not debugging and have it return 
+        	// the simulated data when debug = true and it's been set on the comamand line 
+        	// (IOW, store in the debug object and add a Debug.getSimulatedDate method...
         	Date date = new Date();					// Timestamp for right now including hh:mm:ss
         	
         	SimpleDateFormat sd = new SimpleDateFormat("yyyy/MM/dd");

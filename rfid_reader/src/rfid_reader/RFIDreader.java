@@ -72,7 +72,7 @@ import java.time.format.DateTimeFormatter;
 
 
 public class RFIDreader {
-
+	private static Database db;
 
 	/**
 	 * Initialize the card readers and process cards
@@ -90,31 +90,14 @@ public class RFIDreader {
     	Boolean inventory = false; 
     	//Map<String, TimeLog> timelogMap = new HashMap<String, TimeLog>();
 
+    	
+    	// Initialise our DB
+    	db = new Database();
+    	db.DBinit();
  
-    	// Really need to use jopt-simple if we add more arguments
-    	// KISS argument processing for now
-    	if (args.length != 0) {
-    		for (String argument: args) {
-    			if (argument.equals("-d") || argument.equals("--debug") ) {
-    			    Debug.enable(true);
-    			}
-    			if (argument.equals("-i") || argument.equals("--inventory") ) {
-    				tagInventory(); 											// Inventory a set of tags to stdout
-    				System.exit(0);
-    			}
-    			if (argument.startsWith("--date")) {							// --date="yyyy/MM/dd hh:mm"
-    				if (argument.contains("=")) {
-        				String s[] = argument.split("=");
-        				if (s.length > 1 && !s[1].isEmpty()) {
-        					Debug.setDate(s[1]);					
-        				}
-    				} else {
-    					Usage();
-    				}
-    				
-    			}
-    		} // end for each argument
-    	}
+    	
+    	parseCommandLine(args);
+    	
     	
     	// Initialize tag-to-user database
     	UserTags.read_user_tags();
@@ -127,10 +110,7 @@ public class RFIDreader {
     	System.out.println("Validate that the current time is: " + 
     			formatter.format(current_time)); 
     	
-    	// Initialise our DB
-    	Database db = new Database();
-    	db.DBinit();
-    	
+   	
 	    try {
 	        
  
@@ -150,9 +130,10 @@ public class RFIDreader {
 		    
 	        while (  (card = waitForCard(terminals)) != null ) {
 	        	
-	        	card.beginExclusive();							// Only our thread should process this card
 	        	try {
-					Constants.LoginType login_type; 
+		        	card.beginExclusive();							// Only our thread should process this card
+
+	        		Constants.LoginType login_type; 
 					channel = card.getBasicChannel();
 									
 					ResponseAPDU response = channel.transmit(command);	// Get Data command returns the card UID
@@ -191,17 +172,29 @@ public class RFIDreader {
 							default:
 								System.err.println("ERROR: unknown login type. Please report this to a mentor.");
 								break;	
-							}
+							} // end switch
 							
 							
 						} else {										// Unknown tag
 							System.out.println("Hey!!! Your RFID tag: " + UID + " is not in the database. Please see a mentor! Thanks.");
 						}
-						
+						if (Debug.isEnabled()) {
+								db.reportFromDB();
+						}
 					}
+	        	} catch (Exception e) {
+	        		System.err.println("ERROR: problem processing card:");
+	        		e.printStackTrace();
+	        		System.err.println("Pleaes try again. If the problem continues, please tell a mentor.");        		        		
 	        	} finally {
-	        		card.endExclusive();
-	        		card.disconnect(false);						// Done with this card channel
+	        		try {
+	        			card.endExclusive();
+	        			card.disconnect(false);						// Done with this card channel
+	        		} catch (Exception e ) {
+	        			Debug.log("ERROR: error releasing exclusive lock on the card:");
+	        			Debug.log(e.getMessage());
+	        			e.printStackTrace();
+	        		}
 	        		card = null; 
 	        	}
 			
@@ -234,11 +227,51 @@ public class RFIDreader {
     	
 	 } // end main
 
-    
-    private static void Usage() {
+    /**
+     * Simple CLI parser. 
+     * Really need to use jopt-simple if we add more arguments
+     * KISS argument processing for now
+     * 
+     * @param args - string array of command line arguments
+     */
+    private static void parseCommandLine(String[] args) {
+ 
+    	if (args.length != 0) {
+    		for (String argument: args) {
+    			
+    			if        (argument.equals("-d") || argument.equals("--debug") ) {
+    			    Debug.enable(true);
+    			
+    			} else if (argument.equals("-i") || argument.equals("--inventory") ) {
+    				tagInventory(); 											// Inventory a set of tags to stdout
+    				System.exit(0);
+
+    			} else if (argument.startsWith("--date")) {						// --date="yyyy/MM/dd hh:mm"
+    				if (argument.contains("=")) {
+        				String s[] = argument.split("=");
+        				if (s.length > 1 && !s[1].isEmpty()) {
+        					Debug.setDate(s[1]);					
+        				}
+    				}
+    			
+    			} else if (argument.equals("-r") || argument.equals("--report")) {
+    				db.reportFromDB();
+    				System.exit(0);
+    			} else {
+    				Usage();
+    				
+    			} // end if else
+    			
+    		} // end for each argument
+    	}
+		
+	} // end parseCommandLine
+
+
+	private static void Usage() {
 		System.out.println("Usage: rfid_reader [-i | --inventory] [-d | --debug] [--date='yyy/mm/dd hh:mm:ss [AM|PM]' ]" );
 		System.exit(0);
-	}
+	} // end Usage
 
 
 	/**

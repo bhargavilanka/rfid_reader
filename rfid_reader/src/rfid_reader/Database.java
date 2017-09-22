@@ -76,6 +76,7 @@ import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date; // Apparently Berkeley DB cannot persist Java8 MonthDay objects. So use the old date object
+import java.util.Map;
 import java.text.SimpleDateFormat;
 import java.time.*;
 
@@ -114,8 +115,15 @@ public class Database {
         /* Open a transactional Berkeley DB Environment. */
         envConfig.setAllowCreate(true);
         envConfig.setTransactional(true);
-        env = new Environment(db_dir, envConfig);
         
+        try {
+        	env = new Environment(db_dir, envConfig);
+        } catch (Exception e) {
+        	System.err.println("ERROR: Cannot open database!! Error is:");
+        	System.err.println(e.getMessage());
+        	System.exit(1);
+        }
+       
         
         /* Open a transactional EntityStore. */
         StoreConfig storeConfig = new StoreConfig();
@@ -174,11 +182,8 @@ public class Database {
         	        	
         	login_type = dd.setUser_timelog(user, date);
 
-        	
-        	//dayByDate.put(txn, dd); 
         	dayByDate.put(txn, dd); 
 
-        	//userByDay.put(txn, user_timelog);
         	success = true; 
         } finally {
         	/*
@@ -215,12 +220,31 @@ public class Database {
     public void reportFromDB() throws DatabaseException {
         
     	EntityCursor<DatabaseDay> dds = dayByDate.entities();
+    	Map<String, DatabaseUserTimelog> users_timelog_map;
+    	DatabaseUserTimelog user_timelog;
+    	String user; 
+    	int checkins;
+    	Long total_time;
     	
     	try {
-	    	for (DatabaseDay dd : dds) {
-	    		System.out.println("DB dump: ");
+    		System.out.println("DB dump: ");
+
+/**
+    		for (DatabaseDay dd : dds) {
 	    		System.out.println(dd);
 	    	}
+   */ 		
+    		for (DatabaseDay dd : dds) {						// For each day
+    			users_timelog_map = dd.getUser_timelog();		// Get all the user records for this day
+    			for (String key: users_timelog_map.keySet()) { 	// For each user name
+    				user_timelog = users_timelog_map.get(key);
+    				System.out.println(dd.getDay() + " " + user_timelog.getUsername() + " " + user_timelog.getCheckins() + " " + user_timelog.getTotalTimeToday());
+    			}
+    			
+	    		
+	    	}
+    		
+    		
     	} finally {
     		dds.close();
     	}

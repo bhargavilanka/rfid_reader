@@ -70,12 +70,18 @@ public class DatabaseDay {
 		day = md;
 	}
 
-/*
-	public DatabaseUserTimelog getUser_timelog() {
-		return user_timelog;
-	}
-*/
 
+	public Map<String, DatabaseUserTimelog> getUser_timelog() {
+		return user_timelog_map;
+	}
+
+	/**
+	 * Add a DB record on this day for this user
+	 * 
+	 * @param user - name of the user to add to DB
+	 * @param date - scan in or out timestamp
+	 * @return	   - if record exists for this user, return logout, else login
+	 */
 	public Constants.LoginType setUser_timelog(String user, Date date) {
 		DatabaseUserTimelog user_timelog = null; 
 		Constants.LoginType type; 

@@ -45,7 +45,7 @@ public class DatabaseUserTimelog {
 	//private ZonedDateTime timeOut; 			// Scanned out timestamp
 	private Date timeIn; 						// Scanned in timestamp
 	private Date timeOut; 						// Scanned out timestamp
-	private int			  checkins; 			// Number of checkings today
+	private int			  checkins = 0; 		// Number of checkings today
 	//private Period	  totalTimeToday;		// Total time spent in lab today (HH:MM:SS)
 	private Long		  totalTimeToday = 0L; 	// Total time spent in lab in minutes
 	
@@ -76,7 +76,7 @@ public class DatabaseUserTimelog {
 			return Constants.LoginType.LOGIN; 
 		}
 		
-		// If here, we have a timeIn logged for this user. This must be a timeOut time...
+		// If here, we have a timeIn logged for this user. This must be a timeOut time... (e.g. a logout!)
 		// Validate that current time is greater thant the timeIn time
 		if (timeIn.compareTo(date) > 0) {
 			System.err.println("Error: checkin time " + timeIn + " is before the checkout time " + date + " for user " + username );
@@ -99,10 +99,11 @@ public class DatabaseUserTimelog {
 		long diff = date.getTime() - timeIn.getTime(); 	// Get delta time in milliseconds
 		// TODO: Make sure this is not negative!! e.g. clock issue
 		
-		long diffMinutes = diff / (60 * 1000) % 60; 
+		long diffMinutes = diff / (60 * 1000) % 60; 	// Convert ms to minutes
 		Debug.log("diff minutes: " + diffMinutes);
 		totalTimeToday += diffMinutes; 
 		timeIn = null; 								// Clear scan in time to prep for a new scan in...
+		checkins++;									// Count this is a checkin for today
 		Debug.log("Scanning out for today");
 		return Constants.LoginType.LOGOUT;
 		
@@ -156,7 +157,7 @@ public class DatabaseUserTimelog {
 		buff.append(checkins);
 		buff.append(" Total time today: ");
 		buff.append(totalTimeToday);
-		buff.append("\n]");
+		buff.append("]\n");
 		
 	    return buff.toString();
 	    }

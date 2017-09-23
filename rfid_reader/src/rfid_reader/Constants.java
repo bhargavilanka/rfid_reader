@@ -14,7 +14,8 @@ public interface Constants {
 	
 	// Other constants here
 	public static final String dateTimeFormatPattern = "yyyy/MM/dd HH:mm:ss z";
-
+	public static final long HOUR = 3600*1000; // An hourin milliseconds
+	
 	public enum LoginType {
 		LOGIN, 
 		LOGOUT,

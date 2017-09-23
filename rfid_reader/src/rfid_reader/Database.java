@@ -160,14 +160,10 @@ public class Database {
         	String today = null; 
         	
 
-        	//MonthDay today = MonthDay.now();
-        	// TODO: Add support for using an explicit date from the command when debug is enabled
-        	// in order to simulate specific dates/force specfic code paths
-        	// Specifically, at a getDate() method this class and 
-        	// and it return thea Date() when not debugging and have it return 
-        	// the simulated data when debug = true and it's been set on the comamand line 
-        	// (IOW, store in the debug object and add a Debug.getSimulatedDate method...
-        	Date date = new Date();					// Timestamp for right now including hh:mm:ss
+        	// User Debug method to get the date. If debugging not enabled, 
+        	// it returns the current date. If enabled, it returns the user-specified date (for testing)
+        	Date date = Debug.getDate();				// Timestamp for right now including hh:mm:ss
+        	
         	
         	SimpleDateFormat sd = new SimpleDateFormat("yyyy/MM/dd");
         	today = sd.format(date);			// This is just the year/month/day
@@ -225,9 +221,6 @@ public class Database {
     	EntityCursor<DatabaseDay> dds = dayByDate.entities();
     	Map<String, DatabaseUserTimelog> users_timelog_map;
     	DatabaseUserTimelog user_timelog;
-    	String user; 
-    	int checkins;
-    	Long total_time;
     	
     	try {
     		System.out.println("DB dump: ");
@@ -255,6 +248,23 @@ public class Database {
     	
     } // end reportFromDB
 
+public void dumpDB() throws DatabaseException {
+        
+    	EntityCursor<DatabaseDay> dds = dayByDate.entities();
+    	
+    	try {
+    		System.out.println("DB dump: ");
+
+
+    		for (DatabaseDay dd : dds) {
+	    		System.out.println(dd);
+	    	}
+    		
+    	} finally {
+    		dds.close();
+    	}
+    	    	
+    } // end dumpDB
     
     
     public void close() throws DatabaseException {

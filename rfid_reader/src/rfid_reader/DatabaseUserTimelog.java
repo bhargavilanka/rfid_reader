@@ -69,10 +69,11 @@ public class DatabaseUserTimelog {
 	 * @param date - current timestamp of the tagswipe
 	 * @return LoginType - login or logout or mismatched...
 	 */
-	public Constants.LoginType update (Date date) {
+	public Constants.LoginType update(Date date) {
+
 		if (timeIn == null) {			// If never scanned in
 			this.timeIn = date;
-			Debug.log("Scanning in for today: + username");
+			Debug.log("Scanning in for today: " + username);
 			return Constants.LoginType.LOGIN; 
 		}
 		
@@ -99,7 +100,7 @@ public class DatabaseUserTimelog {
 		long diff = date.getTime() - timeIn.getTime(); 	// Get delta time in milliseconds
 		// TODO: Make sure this is not negative!! e.g. clock issue
 		
-		long diffMinutes = diff / (60 * 1000) % 60; 	// Convert ms to minutes
+		long diffMinutes = diff / 1000 / 60; 	// Convert ms to minutes
 		Debug.log("diff minutes: " + diffMinutes);
 		totalTimeToday += diffMinutes; 
 		timeIn = null; 								// Clear scan in time to prep for a new scan in...

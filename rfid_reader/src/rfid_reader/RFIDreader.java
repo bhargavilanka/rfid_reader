@@ -176,9 +176,6 @@ public class RFIDreader {
 						} else {										// Unknown tag
 							System.out.println("Hey!!! Your RFID tag: " + UID + " is not in the database. Please see a mentor! Thanks.");
 						}
-						if (Debug.isEnabled()) {
-								db.reportFromDB();
-						}
 					}
 	        	} catch (Exception e) {
 	        		System.err.println("ERROR: problem processing card:");
@@ -194,6 +191,10 @@ public class RFIDreader {
 	        			e.printStackTrace();
 	        		}
 	        		card = null; 
+	        	}
+
+	        	if (Debug.isEnabled()) {
+					db.dumpDB();
 	        	}
 			
 			} // end while scan for cards on the terminal
@@ -232,7 +233,7 @@ public class RFIDreader {
      * 
      * @param args - string array of command line arguments
      */
-    private static void parseCommandLine(String[] args) {
+    public static void parseCommandLine(String[] args) {
  
     	if (args.length != 0) {
     		for (String argument: args) {

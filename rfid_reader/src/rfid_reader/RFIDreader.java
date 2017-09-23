@@ -92,13 +92,13 @@ public class RFIDreader {
     	
     	// Initialise our DB
     	db = new Database();
-    	db.DBinit(false);		/* Open the DB for read/write */
+    	db.DBinit(Constants.DATABASE_DIR, false);		/* Open the DB for read/write */
  
     	
     	
     	
     	// Initialize tag-to-user database
-    	UserTags.read_user_tags();
+    	UserTags.read_user_tags(Constants.USER_RFIDTAG_MAPPING);
 
     	// ZonedDateTime.now( ZoneId.of( "America/New_York" )) for a fixed timezone
     	// System we're running on MUST have proper time/timezone set!!!
@@ -200,7 +200,7 @@ public class RFIDreader {
 	        System.err.println("Yikes! Shouldn't get here unless card reader was unplugged!");
 
 /*
-  			// Comment out the enture card reader loop above and uncomment this section in order to populate
+  			// Comment out the entire card reader loop above and uncomment this section in order to populate
   			// the DB with static data. Each time you run the program it's a login or out for these users. 
   			// TODO: Right now all this data gets added for a single day. Need a smarter simulation to populate
   			// the DB with data for multiple days... 
@@ -254,7 +254,7 @@ public class RFIDreader {
     			
     			} else if (argument.equals("-r") || argument.equals("--report")) {
     				db = new Database();
-    				db.DBinit(true);			// Open for read-only access
+    				db.DBinit(Constants.DATABASE_DIR, true);			// Open for read-only access
     				db.reportFromDB();
     				System.exit(0);
     			} else {

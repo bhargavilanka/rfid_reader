@@ -106,11 +106,11 @@ public class Database {
 	 * @param read_write - true if the DB is open for read/write access
 	 * @throws DatabaseException
 	 */
-    public void DBinit(Boolean read_only) throws DatabaseException {
+    public void DBinit(String db_dir_filename, Boolean read_only) throws DatabaseException {
     	
     	
         EnvironmentConfig envConfig = new EnvironmentConfig();
-    	final File db_dir = new File(Constants.DATABASE_DIR);
+    	final File db_dir = new File(db_dir_filename);
     	
         db_dir.mkdirs();						// Create dir if it doesn't exist
         

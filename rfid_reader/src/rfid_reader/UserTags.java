@@ -32,15 +32,19 @@ public class UserTags {
     	
     	
 		try {
-			read_user_tags();
+			read_user_tags(Constants.USER_RFIDTAG_MAPPING);
 		} catch (Exception e) {
 			System.err.println("Unknown error reading tags file " + e.toString());
 			e.printStackTrace(System.err);
 		}
 		
-	}
-    
-    public static void read_user_tags()  {
+	} // end main
+    /**
+     * Read the rfid tag to username table from a CSV file
+     * 
+     * @param user_rfid_filename	- name of the file to read
+     */
+    public static void read_user_tags(String user_rfid_filename)  {
 
     	
     	Path currentRelativePath = Paths.get("");
@@ -49,7 +53,7 @@ public class UserTags {
     	
     	try {
 	    	//CSVReader reader = new CSVReader(new FileReader(Constants.USER_RFIDTAG_MAPPING));
-	    	CSVReaderBuilder readerBuilder = new CSVReaderBuilder(new FileReader(Constants.USER_RFIDTAG_MAPPING))
+	    	CSVReaderBuilder readerBuilder = new CSVReaderBuilder(new FileReader(user_rfid_filename))
 	       											.withSkipLines(1);			// Skip header row!!
 	    	CSVReader reader = readerBuilder.build();
 	

@@ -66,7 +66,7 @@
  * 				[-V]                # print JE version number	 * 
  * 
  * 		Example DB dump command:
- * 		   java -jar ..\..\lib\je-7.4.5.jar DbDump -h . -s persist#RFIDStore#rfid_reader.DatabaseDay -o
+ * 		   java -jar ..\..\lib\je-7.4.5.jar DbDump -h . -s persist#RFIDStore#rfid_reader.DatabaseDay -p
  */
 
 

@@ -101,6 +101,47 @@ public class Tester {
 
 	} // end main
 	
-	
-	
+    /**
+     * Simple CLI parser. 
+     * Really need to use jopt-simple if we add more arguments
+     * KISS argument processing for now
+     * 
+     * @param args - string array of command line arguments
+     */
+    public static void parseCommandLine(String[] args) {
+ 
+    	if (args.length != 0) {
+    		for (String argument: args) {
+    			
+    			if        (argument.equals("-d") || argument.equals("--debug") ) {
+    			    Debug.enable(true);
+    			
+    			} else if (argument.startsWith("--date")) {						// --date="yyyy/MM/dd hh:mm"
+    				if (argument.contains("=")) {
+        				String s[] = argument.split("=");
+        				if (s.length > 1 && !s[1].isEmpty()) {
+        					Debug.setDate(s[1]);					
+        				}
+    				}
+    			
+    			} else if (argument.equals("-r") || argument.equals("--report")) {
+    				db = new Database();
+    				db.DBinit(Constants.DATABASE_DIR, true);			// Open for read-only access
+    				db.reportFromDB();
+    				System.exit(0);
+    			} else {
+    				Usage();
+    				
+    			} // end if else
+    			
+    		} // end for each argument
+    	}
+		
+	} // end parseCommandLine
+
+	private static void Usage() {
+		System.out.println("Usage: tester [-r | --report] [-d | --debug] [--date='yyy/mm/dd hh:mm:ss [AM|PM]' ]" );
+		System.exit(0);
+	} // end Usage
+
 } // end class Tester

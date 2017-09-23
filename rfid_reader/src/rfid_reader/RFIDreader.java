@@ -270,7 +270,7 @@ public class RFIDreader {
 
 
 	private static void Usage() {
-		System.out.println("Usage: rfid_reader [-i | --inventory] [-d | --debug] [--date='yyy/mm/dd hh:mm:ss [AM|PM]' ]" );
+		System.out.println("Usage: rfid_reader [-i | --inventory] [-d | --debug] [--date='yyy/mm/dd hh:mm:ss [AM|PM]' ] [-r | --report]" );
 		System.exit(0);
 	} // end Usage
 

@@ -87,16 +87,14 @@ public class RFIDreader {
 		// Command to get data from the card on the reader
 		CommandAPDU command = new CommandAPDU(new byte[] { (byte) 0xFF, (byte) ISO7816.INS_GET_DATA, (byte) 0x00, (byte) 0x00, (byte) 0x00 });
 
-    	Boolean inventory = false; 
-    	//Map<String, TimeLog> timelogMap = new HashMap<String, TimeLog>();
 
+    	parseCommandLine(args);
     	
     	// Initialise our DB
     	db = new Database();
-    	db.DBinit();
+    	db.DBinit(false);		/* Open the DB for read/write */
  
     	
-    	parseCommandLine(args);
     	
     	
     	// Initialize tag-to-user database
@@ -255,6 +253,8 @@ public class RFIDreader {
     				}
     			
     			} else if (argument.equals("-r") || argument.equals("--report")) {
+    				db = new Database();
+    				db.DBinit(true);			// Open for read-only access
     				db.reportFromDB();
     				System.exit(0);
     			} else {

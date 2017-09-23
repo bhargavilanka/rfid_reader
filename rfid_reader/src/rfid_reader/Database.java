@@ -97,14 +97,16 @@ public class Database {
 
 	private Environment env;		// Berkley DB environment is a set of files in the DB directory
 	private EntityStore store;		// DB store for managing entity objects
-	//private PrimaryIndex<MonthDay, DatabaseDay> dayByDate;
 	private PrimaryIndex<String, DatabaseDay> dayByDate;
 	
-	//private SecondaryIndex<DatabaseUserTimelog, MonthDay, DatabaseDay> userByDay;
-	//private SecondaryIndex<DatabaseUserTimelog, Date, DatabaseDay> userByDay;
-	//private PrimaryIndex<String, DatabaseUserTimelog> userByName;
 	
-    public void DBinit() throws DatabaseException {
+	/**
+	 * Initialize our database - a Berkeley DB for Java instance
+	 * 
+	 * @param read_write - true if the DB is open for read/write access
+	 * @throws DatabaseException
+	 */
+    public void DBinit(Boolean read_only) throws DatabaseException {
     	
     	
         EnvironmentConfig envConfig = new EnvironmentConfig();
@@ -115,6 +117,7 @@ public class Database {
         /* Open a transactional Berkeley DB Environment. */
         envConfig.setAllowCreate(true);
         envConfig.setTransactional(true);
+        envConfig.setReadOnly(read_only);
         
         try {
         	env = new Environment(db_dir, envConfig);
@@ -129,14 +132,14 @@ public class Database {
         StoreConfig storeConfig = new StoreConfig();
         storeConfig.setAllowCreate(true);
         storeConfig.setTransactional(true);
+        storeConfig.setReadOnly(read_only);
         store = new EntityStore(env, "RFIDStore", storeConfig);
 
         /* Initialize the index objects. */
-        //dayByDate 	= store.getPrimaryIndex(MonthDay.class, DatabaseDay.class);
-        //dayByDate 	= store.getPrimaryIndex(Date.class, Date.class);
+        
+        
         dayByDate 	= store.getPrimaryIndex(String.class, DatabaseDay.class);
-        //userByDay 	= store.getSecondaryIndex(dayByDate, DatabaseUserTimelog.class, "name" );
-        //userByName 	= store.getPrimaryIndex(String.class, DatabaseUserTimelog.class);
+        
                     
     } // end DBinit  	
    

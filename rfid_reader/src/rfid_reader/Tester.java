@@ -2,8 +2,6 @@ package rfid_reader;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -20,7 +18,7 @@ public class Tester {
 	
 	public static void main(String[] args) throws ParseException, InterruptedException {
 	
-		RFIDreader.parseCommandLine(args);
+		parseCommandLine(args);
 		
 		db = new Database();
 		db.DBinit(Constants.DATABASE_DIR_TESTING, false);			// Open test DB for read-write access
@@ -126,7 +124,7 @@ public class Tester {
     			
     			} else if (argument.equals("-r") || argument.equals("--report")) {
     				db = new Database();
-    				db.DBinit(Constants.DATABASE_DIR, true);			// Open for read-only access
+    				db.DBinit(Constants.DATABASE_DIR_TESTING, true);			// Open for read-only access
     				db.reportFromDB();
     				System.exit(0);
     			} else {

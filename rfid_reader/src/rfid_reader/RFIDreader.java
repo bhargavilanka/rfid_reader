@@ -336,16 +336,23 @@ public class RFIDreader {
 	 * @return				Connects to the card on the reader and returns the resulting Card object 
 	 * @throws CardException
 	 */
-    private static Card waitForCard(CardTerminals terminals) 
-      throws CardException { 
-        while (true) { 
-        	terminals.waitForChange(0);		// Block forever waiting for state change - no timeout
-        	for (CardTerminal ct : terminals.list(CardTerminals.State.CARD_INSERTION)) { 
-                return ct.connect("*"); 		// Connect via any available protocol (e.g. half or full duplex)
-            } 
-           
-      } 
-    } // end waitForCard
+    private static Card waitForCard(CardTerminals terminals) {
+
+    	  while (true) { 
+    		  try {
+
+    			  terminals.waitForChange(0);		// Block forever waiting for state change - no timeout
+    			  for (CardTerminal ct : terminals.list(CardTerminals.State.CARD_INSERTION)) { 
+    				  return ct.connect("*"); 		// Connect via any available protocol (e.g. half or full duplex)
+    			  }     
+    	    	} catch (Exception e) {
+    	    		System.err.println("ERROR: Unexpected error in card reader loop: " + e.toString() );
+    	    		e.printStackTrace(System.err);
+    	    	}
+    	}
+    	
+    	
+    	} // end waitForCard
 	
 	
 	

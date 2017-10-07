@@ -114,6 +114,7 @@ public class RFIDreader {
  
 	    	TerminalFactory factory = TerminalFactory.getDefault();
 		    CardTerminals terminals = factory.terminals();
+		    CardTerminal acr122 = null; 
 		    if (terminals.list().isEmpty()) { 
 	            System.err.println("No readers found. Connect a reader and try again."); 
 	            System.exit(1); 
@@ -121,15 +122,22 @@ public class RFIDreader {
 	        	// Pjw: Todo: filter list to just all ACR122s!!!
 	        	// Right now it's finding TPM drivers and other readers in addition to ours
 	            Debug.log("RFID readers detected: " + terminals.list());
+	            acr122 = terminals.getTerminal(Constants.READER_NAME);
+	            if (acr122 == null) {
+	            	System.err.println("No ACR122 reader found. Connect a reader and try again."); 
+		            System.exit(1);
+	            }
 	        }
 	
 		    System.out.println("Place you card/tag/etc. on the reader to start"); 
 
 		    
-	        while (  (card = waitForCard(terminals)) != null ) {
+	        while (  (card = waitForCard(acr122)) != null ) {
 	        	
 	        	try {
-		        	card.beginExclusive();							// Only our thread should process this card
+		        	// Keep getting failures at endExclusive: Exclusive access not assigned to current Thread
+	        		// Dunno why. Skip it for now
+	        		//card.beginExclusive();							// Only our thread should process this card
 
 	        		Constants.LoginType login_type; 
 					channel = card.getBasicChannel();
@@ -156,11 +164,11 @@ public class RFIDreader {
 							
 							switch (login_type) {
 							case LOGIN:
-								System.out.println(user.getUsername() + ". " + user.getUserLoginMsg());	
+								System.out.println("Signing in: " 	+ user.getUsername() + ". " + user.getUserLoginMsg());	
 								break;
 
 							case LOGOUT:
-								System.out.println(user.getUsername() + ". " + user.getUserLogoutMsg());	
+								System.out.println("Signing out: " + user.getUsername() + ". " + user.getUserLogoutMsg());	
 								break;
 							
 							case INVALID_TIME_SPAN:
@@ -183,12 +191,16 @@ public class RFIDreader {
 	        		System.err.println("Pleaes try again. If the problem continues, please tell a mentor.");        		        		
 	        	} finally {
 	        		try {
-	        			card.endExclusive();
+	        			//card.endExclusive();
 	        			card.disconnect(false);						// Done with this card channel
+	        			acr122.waitForCardAbsent(0);
 	        		} catch (Exception e ) {
-	        			Debug.log("ERROR: error releasing exclusive lock on the card:");
-	        			Debug.log(e.getMessage());
-	        			e.printStackTrace();
+	        			System.err.println("ERROR: error releasing exclusive lock on the card:");
+	        			System.err.println(e.getMessage());
+	        			System.err.println(e.getCause());
+	        			if (Debug.isEnabled()) {
+	        				e.printStackTrace();
+	        			}
 	        		}
 	        		card = null; 
 	        	}
@@ -293,6 +305,11 @@ public class RFIDreader {
 	            System.exit(1); 
 	        } else {
 	            Debug.log("RFID readers detected: " + terminals.list());
+	            if (Debug.isEnabled()) { 							// Print the reader names for use with CardTerminal.getTerminal("name")
+	            	for (CardTerminal ct : terminals.list()) {
+	            		System.out.println(ct.getName());
+	            	}
+	            }
 	        }
 	
 		    System.out.println("Place you card/tag/etc. on the reader to start"); 
@@ -330,7 +347,7 @@ public class RFIDreader {
     } // end method tagInventory
     
 	/**
-	 * Block until we get a card insertion event
+	 * Block until we get a card insertion event from any terminal
 	 * 
 	 * @param terminals		We can have multiple readers. Scan all readers for cards
 	 * @return				Connects to the card on the reader and returns the resulting Card object 
@@ -354,7 +371,36 @@ public class RFIDreader {
     	
     	} // end waitForCard
 	
-	
+	/**
+	 * Block until we get a card insertion event from a specific terminal
+	 * 
+	 * @param ct			Scan this one cardreader
+	 * @return				Connects to the card on the reader and returns the resulting Card object 
+	 * @throws CardException
+	 */
+    private static Card waitForCard(CardTerminal ct) {
+
+    	  while (true) { 
+    		  try {
+
+    			  ct.waitForCardPresent(0);		// Block forever waiting for state change - no timeout
+    			  return ct.connect("*"); 		// Connect via any available protocol (e.g. half or full duplex)
+    	    	} catch (Exception e) {
+    	    		System.err.println("ERROR: Unexpected error in card reader loop: " + e.toString() );
+    	    		e.printStackTrace(System.err);
+    	    		// If reader was unplugged we get caught in an infinite loop...
+    	    		// Just delay so we aren't compute bound
+    	    		try {
+    	    			Thread.sleep(1000);
+    	    		} catch (InterruptedException ie) {
+    	    			
+    	    		}
+    	    	}
+    	}
+    	
+    	
+    	} // end waitForCard
+
 	
 	/**
 	 * Returns the hex-formatted version of the byte inputs. 

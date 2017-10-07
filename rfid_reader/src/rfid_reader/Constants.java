@@ -10,7 +10,7 @@ public interface Constants {
 	public static final String DATABASE_DIR 		= "data/attendance_DB";
 	public static final String DATABASE_DIR_TESTING = "data/testing_DB";
 
-
+	public static final String READER_NAME = "ACS ACR122 0";
 	
 	// Other constants here
 	public static final String dateTimeFormatPattern = "yyyy/MM/dd HH:mm:ss z";

@@ -326,7 +326,7 @@ public class RFIDreader {
 					//if (response.getSW1() == 0x63 && response.getSW2() == 0x00)  System.out.println("Failed");
 					if (response.getSW() != ISO7816.SW_NO_ERROR) {
 						System.err.println("ERROR: Failed to read card. Error codes SW1+SW2: " + response.toString());
-						System.err.println("Please tell a mentor!");
+						System.err.println("If this keeps happening, please tell a mentor!");
 					} else {
 						System.out.println("UID: " + bin2hex(response.getData()));
 	        		}

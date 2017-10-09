@@ -242,6 +242,8 @@ public class RFIDreader {
      * Simple CLI parser. 
      * Really need to use jopt-simple if we add more arguments
      * KISS argument processing for now
+     * pjw: TODO: What if the user supplies --report --inventory? We don't have exclusion checking...
+     * Right now, first arg wins
      * 
      * @param args - string array of command line arguments
      */

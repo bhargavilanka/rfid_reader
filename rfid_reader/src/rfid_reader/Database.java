@@ -72,14 +72,19 @@
 
 package rfid_reader;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.text.ParseException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+
 import java.text.SimpleDateFormat;
 import java.util.Date; // Apparently Berkeley DB cannot persist Java8 MonthDay objects. So use the old date object
 import java.util.Map;
-import java.text.SimpleDateFormat;
-import java.time.*;
 
+
+import com.opencsv.CSVWriter;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
@@ -87,7 +92,6 @@ import com.sleepycat.je.Transaction;
 import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.PrimaryIndex;
-import com.sleepycat.persist.SecondaryIndex;
 import com.sleepycat.persist.StoreConfig;
 
 
@@ -222,27 +226,53 @@ public class Database {
     	Map<String, DatabaseUserTimelog> users_timelog_map;
     	DatabaseUserTimelog user_timelog;
     	
+    	BufferedWriter stdout = new BufferedWriter(new OutputStreamWriter(System.out));
+    	CSVWriter 	 writer = new CSVWriter(stdout); 
+    	
     	try {
     		System.out.println("DB dump: ");
 
 /**
+ * quick for debugging
     		for (DatabaseDay dd : dds) {
 	    		System.out.println(dd);
 	    	}
    */ 		
+
+/**
+ * quick for sanity checking output
     		for (DatabaseDay dd : dds) {						// For each day
     			users_timelog_map = dd.getUser_timelog();		// Get all the user records for this day
     			for (String key: users_timelog_map.keySet()) { 	// For each user name
     				user_timelog = users_timelog_map.get(key);
     				System.out.println(dd.getDay() + " " + user_timelog.getUsername() + " " + user_timelog.getCheckins() + " " + user_timelog.getTotalTimeToday());
     			}
-    			
-	    		
 	    	}
+*/
     		
-    		
+    		// Write CSV to stdout 
+    		String [] s	= new String [4];
+    		for (DatabaseDay dd : dds) {						// For each day
+    			users_timelog_map = dd.getUser_timelog();		// Get all the user records for this day
+    			for (String key: users_timelog_map.keySet()) { 	// For each user name
+    				user_timelog = users_timelog_map.get(key);
+    				s[0] = dd.getDay();
+    				s[1] = user_timelog.getUsername();
+    				s[2] = Integer.toString(user_timelog.getCheckins());
+    				s[3] = Long.toString(user_timelog.getTotalTimeToday());
+    				writer.writeNext(s);
+    			}
+	    	}
+
     	} finally {
-    		dds.close();
+     		dds.close();
+     		try {
+     			writer.flush();
+     			writer.close();
+     		} catch (IOException e) {
+     			System.err.println("Error: cannot close stream: " + e.getMessage());
+     			e.printStackTrace();
+     		}
     	}
     	
     	

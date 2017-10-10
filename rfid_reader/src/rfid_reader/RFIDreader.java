@@ -57,6 +57,19 @@
  *  	To run this outside of eclipse (from a command line), you need to set CLASSPATH. One way:
  *  		java -classpath "bin;lib\*" rfid_reader.RFIDreader
  *  	which assumes your PWD is the parent dir for bin and lib. 
+ *  
+ *  Bigger picture usage:
+ *  	On the Windows cardreader PC we'll write
+ *  	We'll run a Windows scheduled task on the cardreader PC that invokes
+ *  	us with the --report > current.csv in order to get the latest data. 
+ *      That file will be sync'd to our google drive and referenced by
+ *      a google sheet that summarizes the data.
+ *      Q: When does this stop? last day of build season? We can have that in the scheduled task
+ *      as the stop date. 
+ *      Also, only one current.csv exists at a time. In order to preserve historical data, the 
+ *      current current.csv is renamed to current_<date>.csv
+ *      We get the best of both worlds this way. No weird reliance on the internet/google for attendance
+ *      and lazy sung   
  */
 
 package rfid_reader;

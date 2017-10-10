@@ -230,7 +230,6 @@ public class Database {
     	CSVWriter 	 writer = new CSVWriter(stdout); 
     	
     	try {
-    		System.out.println("DB dump: ");
 
 /**
  * quick for debugging
@@ -251,7 +250,9 @@ public class Database {
 */
     		
     		// Write CSV to stdout 
-    		String [] s	= new String [4];
+    		String [] s	= new String [] {"Date", "Name", "Checkins", "Total Time"};
+    		writer.writeNext(s); 								// Write the header
+    		
     		for (DatabaseDay dd : dds) {						// For each day
     			users_timelog_map = dd.getUser_timelog();		// Get all the user records for this day
     			for (String key: users_timelog_map.keySet()) { 	// For each user name

@@ -251,7 +251,7 @@ public class Database {
     		
     		// Write CSV to stdout 
     		String [] s	= new String [] {"Date", "Name", "Checkins", "Total Time"};
-    		writer.writeNext(s); 								// Write the header
+    		writer.writeNext(s, false); 						// Write the header, quote only when needed
     		
     		for (DatabaseDay dd : dds) {						// For each day
     			users_timelog_map = dd.getUser_timelog();		// Get all the user records for this day
@@ -261,7 +261,7 @@ public class Database {
     				s[1] = user_timelog.getUsername();
     				s[2] = Integer.toString(user_timelog.getCheckins());
     				s[3] = Long.toString(user_timelog.getTotalTimeToday());
-    				writer.writeNext(s);
+    				writer.writeNext(s, false);
     			}
 	    	}
 

@@ -161,7 +161,7 @@ public class RFIDreader {
 					//if (response.getSW1() == 0x63 && response.getSW2() == 0x00)  System.out.println("Failed");
 					if (response.getSW() != ISO7816.SW_NO_ERROR) {
 						System.err.println("ERROR: Failed to read card. Error codes SW1+SW2: " + response.toString());
-						System.err.println("Please tell a mentor!");
+						System.err.println("Try again. If this error keeps happening, please tell a mentor!");
 					
 					} else {
 						String UID = bin2hex(response.getData());
@@ -401,8 +401,15 @@ public class RFIDreader {
     			  ct.waitForCardPresent(0);		// Block forever waiting for state change - no timeout
     			  return ct.connect("*"); 		// Connect via any available protocol (e.g. half or full duplex)
     	    	} catch (Exception e) {
-    	    		System.err.println("ERROR: Unexpected error in card reader loop: " + e.toString() );
-    	    		e.printStackTrace(System.err);
+    	    		
+    	    		// Classmate PC was so slow we constantly get javax.smartcardio.CardNotPresentException: card not present
+    	    		// PCSCException: SCARD_W_REMOVED_CARD
+    	    		// It's clear to the user when his card his read so we'll just surpress these
+    	    		if (Debug.isEnabled()) {
+        	    		System.err.println("ERROR: Unexpected error in card reader loop: " + e.toString() );
+        	    		e.printStackTrace(System.err);
+    	    			
+    	    		}
     	    		// If reader was unplugged we get caught in an infinite loop...
     	    		// Just delay so we aren't compute bound
     	    		try {

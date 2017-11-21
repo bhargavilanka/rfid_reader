@@ -200,7 +200,10 @@ public class RFIDreader {
 					}
 	        	} catch (Exception e) {
 	        		System.err.println("ERROR: problem processing card:");
-	        		e.printStackTrace();
+	        		System.err.println(e.getMessage());
+	        		if (Debug.isEnabled()) {
+	        			e.printStackTrace();
+	        		}
 	        		System.err.println("Pleaes try again. If the problem continues, please tell a mentor.");        		        		
 	        	} finally {
 	        		try {
